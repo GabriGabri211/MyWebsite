@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Mandami messaggi anonimi</title>
+  <title>Chat Anonima</title>
   <style>
     body {
       font-family: sans-serif;
@@ -25,17 +25,7 @@
 
     .msg {
       margin: 5px 0;
-    }
-
-    .user {
       color: blue;
-      text-align: left;
-    }
-
-    .gabri {
-      color: green;
-      text-align: right;
-      font-weight: bold;
     }
 
     textarea {
@@ -50,11 +40,6 @@
       margin-top: 5px;
       padding: 10px 20px;
       font-size: 16px;
-    }
-
-    #adminReply {
-      display: none;
-      margin-top: 25px;
     }
 
     #log {
@@ -75,25 +60,12 @@
 </head>
 <body>
 
-  <h1>Mandami messaggi anonimi</h1>
+  <h1>Manda messaggi anonimi</h1>
   <div id="chatbox"></div>
 
-  <!-- Messaggio utente -->
   <textarea id="message" placeholder="Scrivi un messaggio anonimo..."></textarea><br>
   <button id="anonBtn" onclick="sendAnonymous()">Invia</button>
 
-  <!-- Sblocco Gabri -->
-  <div id="unlockBox" style="margin-top: 20px;">
-    <button onclick="unlockGabri()">Hai il codice di Gabri?</button>
-  </div>
-
-  <!-- Risposte Gabri -->
-  <div id="adminReply">
-    <textarea id="gabriMsg" placeholder="Scrivi una risposta come Gabri..."></textarea><br>
-    <button onclick="sendGabri()">Rispondi</button>
-  </div>
-
-  <!-- Log messaggi -->
   <h3>📜 Log messaggi</h3>
   <ul id="log"></ul>
 
@@ -101,18 +73,16 @@
     const chatbox = document.getElementById("chatbox");
     const anonBtn = document.getElementById("anonBtn");
 
-    function appendMessage(msg, who) {
+    function appendMessage(msg) {
       const div = document.createElement("div");
-      div.className = "msg " + who;
+      div.className = "msg";
       div.textContent = msg;
       chatbox.appendChild(div);
       chatbox.scrollTop = chatbox.scrollHeight;
-    }
 
-    function aggiornaLog(mittente, testo) {
       const log = document.getElementById("log");
       const voce = document.createElement("li");
-      voce.textContent = `${mittente}: ${testo}`;
+      voce.textContent = msg;
       log.appendChild(voce);
       if (log.children.length > 50) {
         log.removeChild(log.children[0]);
@@ -125,8 +95,7 @@
       if (!msg) return;
       if (!msg.endsWith("?")) msg += "?";
 
-      appendMessage("Anonimo: " + msg, "user");
-      aggiornaLog("Anonimo", msg);
+      appendMessage("Anonimo: " + msg);
       input.value = "";
 
       anonBtn.disabled = true;
@@ -141,25 +110,6 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: msg })
       });
-    }
-
-    function unlockGabri() {
-      const code = prompt("Inserisci il codice:");
-      if (code === "Gabri") {
-        document.getElementById("adminReply").style.display = "block";
-        document.getElementById("unlockBox").style.display = "none";
-      } else {
-        alert("Codice errato.");
-      }
-    }
-
-    function sendGabri() {
-      const input = document.getElementById("gabriMsg");
-      let msg = input.value.trim();
-      if (!msg) return;
-      appendMessage("Gabri: " + msg, "gabri");
-      aggiornaLog("Gabri", msg);
-      input.value = "";
     }
   </script>
 
