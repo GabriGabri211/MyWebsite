@@ -43,58 +43,78 @@
   </style>
 </head>
 <body>
-  <h1>Mandami messaggi anonimi</h1>
-  <div id="chatbox"></div>
-  <textarea id="message" placeholder="Scrivi un messaggio..."></textarea><br>
-  <button onclick="sendMessage()">Invia</button>
-  <div id="status"></div>
+ <div id="chatbox"></div>
 
-  <script>
-    function appendMessage(text, sender) {
-      const chatbox = document.getElementById("chatbox");
-      const div = document.createElement("div");
-      div.className = sender;
-      div.textContent = text;
-      chatbox.appendChild(div);
-      chatbox.scrollTop = chatbox.scrollHeight;
+<!-- Messaggio utente -->
+<textarea id="message" placeholder="Scrivi un messaggio..."></textarea><br>
+<button onclick="sendUserMessage()">Invia</button>
+
+<!-- Campo nascosto per sbloccare la risposta di Gabri -->
+<input type="password" id="adminKey" placeholder="Codice admin" style="display:none;" />
+<button id="unlock" onclick="unlockReply()" style="margin-top:8px;">Hai il codice?</button>
+
+<!-- Risposte di Gabri (inizialmente nascosta) -->
+<div id="adminReply" style="display:none; margin-top:20px;">
+  <textarea id="gabriMsg" placeholder="Rispondi come Gabri..."></textarea><br>
+  <button onclick="sendGabriMessage()">Invia risposta</button>
+</div>
+
+<script>
+  const chatbox = document.getElementById("chatbox");
+
+  function appendMessage(msg, cls) {
+    const div = document.createElement("div");
+    div.textContent = msg;
+    div.className = cls;
+    chatbox.appendChild(div);
+    chatbox.scrollTop = chatbox.scrollHeight;
+  }
+
+  function sendUserMessage() {
+    let msg = document.getElementById("message").value.trim();
+    if (!msg) return;
+    if (!msg.endsWith("?")) msg += "?";
+    appendMessage("Anonimo: " + msg, "user");
+    document.getElementById("message").value = "";
+
+    fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: msg })
+    });
+  }
+
+  function unlockReply() {
+    const input = prompt("Inserisci il codice:");
+    if (input === "Gabri") {
+      document.getElementById("adminReply").style.display = "block";
+      document.getElementById("unlock").style.display = "none";
+    } else {
+      alert("Codice errato.");
     }
+  }
 
-    async function sendMessage() {
-      const input = document.getElementById("message");
-      const status = document.getElementById("status");
-      let msg = input.value.trim();
+  function sendGabriMessage() {
+    const msg = document.getElementById("gabriMsg").value.trim();
+    if (!msg) return;
+    appendMessage("Gabri: " + msg, "gabri");
+    document.getElementById("gabriMsg").value = "";
+  }
+</script>
 
-      if (!msg) {
-        status.textContent = "Scrivi qualcosa prima di inviare.";
-        status.style.color = "red";
-        return;
-      }
-
-      if (!msg.endsWith("?")) msg += "?";
-
-      appendMessage("Tu: " + msg, "user");
-      input.value = "";
-      status.textContent = "";
-
-      // Simula risposta
-      const replies = ["Bella domanda!", "Interessante...", "Ci penserò!", "Perché no?"];
-      const reply = replies[Math.floor(Math.random() * replies.length)];
-      setTimeout(() => appendMessage("CostyBot: " + reply, "bot"), 1000);
-
-      // Invia a Discord
-      try {
-        await fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: msg })
-        });
-        status.textContent = "Inviato su Discord!";
-        status.style.color = "green";
-      } catch (error) {
-        status.textContent = "Errore durante l'invio.";
-        status.style.color = "red";
-      }
-    }
-  </script>
+<style>
+  #chatbox {
+    width: 90%;
+    max-width: 400px;
+    height: 250px;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+    background: #f0f0f0;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  .user { color: blue; margin: 5px 0; text-align: left; }
+  .gabri { color: green; font-weight: bold; margin: 5px 0; text-align: right; }
+</style>
 </body>
 </html>
