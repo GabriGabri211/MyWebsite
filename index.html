@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Mandami messaggi anonimi</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -18,103 +18,100 @@
       border: 1px solid #ccc;
       padding: 10px;
       overflow-y: auto;
-      background: #f9f9f9;
-      margin-bottom: 10px;
+      background: #f4f4f4;
+      margin-bottom: 15px;
     }
-    .user { text-align: right; margin: 5px; color: blue; }
-    .bot { text-align: left; margin: 5px; color: green; }
+    .msg { margin: 5px 0; }
+    .user { color: blue; text-align: left; }
+    .gabri { color: green; text-align: right; font-weight: bold; }
     textarea {
       width: 90%;
       max-width: 400px;
       height: 60px;
       padding: 10px;
-      font-size: 16px;
+      margin-top: 5px;
     }
     button {
-      margin-top: 8px;
+      margin-top: 5px;
       padding: 10px 20px;
       font-size: 16px;
     }
-    #status {
-      margin-top: 10px;
-      font-style: italic;
-      color: green;
-    }
+    #adminReply { display: none; margin-top: 25px; }
   </style>
 </head>
 <body>
- <div id="chatbox"></div>
 
-<!-- Messaggio utente -->
-<textarea id="message" placeholder="Scrivi un messaggio..."></textarea><br>
-<button onclick="sendUserMessage()">Invia</button>
+  <h1>Mandami messaggi anonimi</h1>
+  <div id="chatbox"></div>
 
-<!-- Campo nascosto per sbloccare la risposta di Gabri -->
-<input type="password" id="adminKey" placeholder="Codice admin" style="display:none;" />
-<button id="unlock" onclick="unlockReply()" style="margin-top:8px;">Hai il codice?</button>
+  <!-- Messaggio utente -->
+  <textarea id="message" placeholder="Scrivi un messaggio anonimo..."></textarea><br>
+  <button id="anonBtn" onclick="sendAnonymous()">Invia</button>
 
-<!-- Risposte di Gabri (inizialmente nascosta) -->
-<div id="adminReply" style="display:none; margin-top:20px;">
-  <textarea id="gabriMsg" placeholder="Rispondi come Gabri..."></textarea><br>
-  <button onclick="sendGabriMessage()">Invia risposta</button>
-</div>
+  <!-- Sblocco Gabri -->
+  <div id="unlockBox" style="margin-top: 20px;">
+    <button onclick="unlockGabri()">Hai il codice di Gabri?</button>
+  </div>
 
-<script>
-  const chatbox = document.getElementById("chatbox");
+  <!-- Risposte Gabri -->
+  <div id="adminReply">
+    <textarea id="gabriMsg" placeholder="Scrivi una risposta come Gabri..."></textarea><br>
+    <button onclick="sendGabri()">Rispondi</button>
+  </div>
 
-  function appendMessage(msg, cls) {
-    const div = document.createElement("div");
-    div.textContent = msg;
-    div.className = cls;
-    chatbox.appendChild(div);
-    chatbox.scrollTop = chatbox.scrollHeight;
-  }
+  <script>
+    const chatbox = document.getElementById("chatbox");
+    const anonBtn = document.getElementById("anonBtn");
 
-  function sendUserMessage() {
-    let msg = document.getElementById("message").value.trim();
-    if (!msg) return;
-    if (!msg.endsWith("?")) msg += "?";
-    appendMessage("Anonimo: " + msg, "user");
-    document.getElementById("message").value = "";
-
-    fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content: msg })
-    });
-  }
-
-  function unlockReply() {
-    const input = prompt("Inserisci il codice:");
-    if (input === "Gabri") {
-      document.getElementById("adminReply").style.display = "block";
-      document.getElementById("unlock").style.display = "none";
-    } else {
-      alert("Codice errato.");
+    function appendMessage(msg, who) {
+      const div = document.createElement("div");
+      div.className = "msg " + who;
+      div.textContent = msg;
+      chatbox.appendChild(div);
+      chatbox.scrollTop = chatbox.scrollHeight;
     }
-  }
 
-  function sendGabriMessage() {
-    const msg = document.getElementById("gabriMsg").value.trim();
-    if (!msg) return;
-    appendMessage("Gabri: " + msg, "gabri");
-    document.getElementById("gabriMsg").value = "";
-  }
-</script>
+    function sendAnonymous() {
+      const input = document.getElementById("message");
+      let msg = input.value.trim();
+      if (!msg) return;
+      if (!msg.endsWith("?")) msg += "?";
 
-<style>
-  #chatbox {
-    width: 90%;
-    max-width: 400px;
-    height: 250px;
-    border: 1px solid #ccc;
-    overflow-y: auto;
-    background: #f0f0f0;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  .user { color: blue; margin: 5px 0; text-align: left; }
-  .gabri { color: green; font-weight: bold; margin: 5px 0; text-align: right; }
-</style>
+      appendMessage("Anonimo: " + msg, "user");
+      input.value = "";
+
+      anonBtn.disabled = true;
+      anonBtn.textContent = "Attendi 5s...";
+      setTimeout(() => {
+        anonBtn.disabled = false;
+        anonBtn.textContent = "Invia";
+      }, 5000);
+
+      fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: msg })
+      });
+    }
+
+    function unlockGabri() {
+      const code = prompt("Inserisci il codice:");
+      if (code === "Gabri") {
+        document.getElementById("adminReply").style.display = "block";
+        document.getElementById("unlockBox").style.display = "none";
+      } else {
+        alert("Codice errato.");
+      }
+    }
+
+    function sendGabri() {
+      const input = document.getElementById("gabriMsg");
+      let msg = input.value.trim();
+      if (!msg) return;
+      appendMessage("Gabri: " + msg, "gabri");
+      input.value = "";
+    }
+  </script>
+
 </body>
 </html>
