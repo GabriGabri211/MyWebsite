@@ -11,6 +11,7 @@
       align-items: center;
       margin-top: 40px;
     }
+
     #chatbox {
       width: 90%;
       max-width: 400px;
@@ -21,9 +22,22 @@
       background: #f4f4f4;
       margin-bottom: 15px;
     }
-    .msg { margin: 5px 0; }
-    .user { color: blue; text-align: left; }
-    .gabri { color: green; text-align: right; font-weight: bold; }
+
+    .msg {
+      margin: 5px 0;
+    }
+
+    .user {
+      color: blue;
+      text-align: left;
+    }
+
+    .gabri {
+      color: green;
+      text-align: right;
+      font-weight: bold;
+    }
+
     textarea {
       width: 90%;
       max-width: 400px;
@@ -31,12 +45,32 @@
       padding: 10px;
       margin-top: 5px;
     }
+
     button {
       margin-top: 5px;
       padding: 10px 20px;
       font-size: 16px;
     }
-    #adminReply { display: none; margin-top: 25px; }
+
+    #adminReply {
+      display: none;
+      margin-top: 25px;
+    }
+
+    #log {
+      max-width: 400px;
+      margin-top: 30px;
+      list-style-type: none;
+      padding-left: 0;
+      font-size: 14px;
+    }
+
+    #log li {
+      margin: 3px 0;
+      padding: 2px 4px;
+      background-color: #eee;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -59,6 +93,10 @@
     <button onclick="sendGabri()">Rispondi</button>
   </div>
 
+  <!-- Log messaggi -->
+  <h3>📜 Log messaggi</h3>
+  <ul id="log"></ul>
+
   <script>
     const chatbox = document.getElementById("chatbox");
     const anonBtn = document.getElementById("anonBtn");
@@ -71,6 +109,16 @@
       chatbox.scrollTop = chatbox.scrollHeight;
     }
 
+    function aggiornaLog(mittente, testo) {
+      const log = document.getElementById("log");
+      const voce = document.createElement("li");
+      voce.textContent = `${mittente}: ${testo}`;
+      log.appendChild(voce);
+      if (log.children.length > 50) {
+        log.removeChild(log.children[0]);
+      }
+    }
+
     function sendAnonymous() {
       const input = document.getElementById("message");
       let msg = input.value.trim();
@@ -78,6 +126,7 @@
       if (!msg.endsWith("?")) msg += "?";
 
       appendMessage("Anonimo: " + msg, "user");
+      aggiornaLog("Anonimo", msg);
       input.value = "";
 
       anonBtn.disabled = true;
@@ -109,6 +158,7 @@
       let msg = input.value.trim();
       if (!msg) return;
       appendMessage("Gabri: " + msg, "gabri");
+      aggiornaLog("Gabri", msg);
       input.value = "";
     }
   </script>
