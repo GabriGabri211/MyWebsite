@@ -36,36 +36,38 @@
   <div id="status"></div>
 
   <script>
-    async function sendMessage() {
-      const msg = document.getElementById("message").value;
-      const status = document.getElementById("status");
+  async function sendMessage() {
+    const msgInput = document.getElementById("message");
+    const status = document.getElementById("status");
+    let msg = msgInput.value.trim();
 
-      if (!msg.trim()) {
-        status.textContent = "Per favore, scrivi un messaggio prima di inviare.";
-        status.style.color = "red";
-        return;
-      }
-
-      const payload = {
-        content: msg
-      };
-
-      try {
-        await fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(payload)
-        });
-        status.textContent = "Messaggio inviato!";
-        status.style.color = "green";
-        document.getElementById("message").value = "";
-      } catch (error) {
-        status.textContent = "Errore durante l'invio del messaggio.";
-        status.style.color = "red";
-      }
+    if (!msg) {
+      status.textContent = "Per favore, scrivi un messaggio prima di inviare.";
+      status.style.color = "red";
+      return;
     }
-  </script>
+
+    // Aggiunge "?" se non c'è già
+    if (!msg.endsWith("?")) {
+      msg += "?";
+    }
+
+    const payload = { content: msg };
+
+    try {
+      await fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      status.textContent = "Messaggio inviato!";
+      status.style.color = "green";
+      msgInput.value = "";
+    } catch (error) {
+      status.textContent = "Errore durante l'invio del messaggio.";
+      status.style.color = "red";
+    }
+  }
+</script>
 </body>
 </html>
