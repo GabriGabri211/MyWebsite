@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Click Me Fast!</title>
+  <title>My website</title>
   <style>
     body { font-family: sans-serif; text-align: center; margin-top: 50px; }
     #btn { padding: 20px; font-size: 18px; position: absolute; }
@@ -9,31 +9,32 @@
   </style>
 </head>
 <body>
-  <h1>Click Me Fast!</h1>
-  <p>Click the button as many times as you can in 10 seconds.</p>
-  <button id="btn">Click me!</button>
-  <div id="score">Score: 0</div>
+  <div id="chatbox" style="width: 300px; margin: 50px auto; border: 1px solid #ccc; padding: 10px;">
+  <h3>Chatbot</h3>
+  <div id="chat" style="height: 150px; overflow-y: auto; background: #f9f9f9; padding: 5px;"></div>
+  <input id="msgInput" type="text" placeholder="Say something..." style="width: 70%;" />
+  <button onclick="sendMsg()">Send</button>
+</div>
 
-  <script>
-    const btn = document.getElementById("btn");
-    const scoreDisplay = document.getElementById("score");
-    let score = 0;
-    let timeLeft = 10;
+<script>
+  function sendMsg() {
+    const input = document.getElementById("msgInput");
+    const chat = document.getElementById("chat");
+    const userMsg = input.value;
+    if (!userMsg) return;
 
-    btn.onclick = () => {
-      if (timeLeft > 0) {
-        score++;
-        scoreDisplay.textContent = "Score: " + score;
-        btn.style.top = Math.random() * 80 + "vh";
-        btn.style.left = Math.random() * 80 + "vw";
-      }
-    };
+    // Append user's message
+    chat.innerHTML += `<div><strong>You:</strong> ${userMsg}</div>`;
 
-    setTimeout(() => {
-      timeLeft = 0;
-      btn.disabled = true;
-      alert("Time's up! Your final score is: " + score);
-    }, 10000);
-  </script>
+    // Simple bot response
+    let reply = "Hmm... interesting!";
+    if (userMsg.includes("hello")) reply = "Hey there! 👋";
+    if (userMsg.includes("score")) reply = "Nice one! Keep clicking!";
+
+    chat.innerHTML += `<div><strong>Bot:</strong> ${reply}</div>`;
+    chat.scrollTop = chat.scrollHeight;
+    input.value = "";
+  }
+</script>
 </body>
 </html>
