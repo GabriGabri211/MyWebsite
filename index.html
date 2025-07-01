@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Click Me Fast!</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+    #btn { padding: 20px; font-size: 18px; position: absolute; }
+    #score { font-size: 24px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Click Me Fast!</h1>
+  <p>Click the button as many times as you can in 10 seconds.</p>
+  <button id="btn">Click me!</button>
+  <div id="score">Score: 0</div>
+
+  <script>
+    const btn = document.getElementById("btn");
+    const scoreDisplay = document.getElementById("score");
+    let score = 0;
+    let timeLeft = 10;
+
+    btn.onclick = () => {
+      if (timeLeft > 0) {
+        score++;
+        scoreDisplay.textContent = "Score: " + score;
+        btn.style.top = Math.random() * 80 + "vh";
+        btn.style.left = Math.random() * 80 + "vw";
+      }
+    };
+
+    setTimeout(() => {
+      timeLeft = 0;
+      btn.disabled = true;
+      alert("Time's up! Your final score is: " + score);
+    }, 10000);
+  </script>
+</body>
+</html>
