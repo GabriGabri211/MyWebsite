@@ -1,116 +1,101 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <title>Chat Anonima</title>
+  <meta charset="UTF-8">
+  <title>Mandami messaggi anonimi - Gabri</title>
   <style>
     body {
       font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 40px;
+      text-align: center;
+      margin-top: 100px;
     }
-
-    #chatbox {
-      width: 90%;
-      max-width: 400px;
-      height: 300px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      overflow-y: auto;
-      background: #f4f4f4;
-      margin-bottom: 15px;
-    }
-
-    .msg {
-      margin: 5px 0;
-      color: blue;
-    }
-
     textarea {
-      width: 90%;
-      max-width: 400px;
-      height: 60px;
-      padding: 10px;
-      margin-top: 5px;
-    }
-
-    button {
-      margin-top: 5px;
-      padding: 10px 20px;
+      width: 300px;
+      height: 120px;
       font-size: 16px;
+      padding: 10px;
+      margin-bottom: 10px;
     }
-
-    #log {
-      max-width: 400px;
-      margin-top: 30px;
-      list-style-type: none;
-      padding-left: 0;
-      font-size: 14px;
+    button {
+      font-size: 16px;
+      padding: 10px 20px;
     }
-
-    #log li {
-      margin: 3px 0;
-      padding: 2px 4px;
-      background-color: #eee;
-      border-radius: 4px;
+    #status {
+      margin-top: 10px;
+      color: green;
+      font-style: italic;
     }
   </style>
 </head>
 <body>
 
-  <h1>Manda messaggi anonimi</h1>
-  <div id="chatbox"></div>
-
-  <textarea id="message" placeholder="Scrivi un messaggio anonimo..."></textarea><br>
-  <button id="anonBtn" onclick="sendAnonymous()">Invia</button>
-
-  <h3>📜 Log messaggi</h3>
-  <ul id="log"></ul>
+  <h1>Mandami messaggi anonimi</h1>
+  <textarea id="message" placeholder="Scrivi qualcosa..."></textarea><br>
+  <button id="sendBtn" onclick="send()">Invia</button>
+  <div id="status"></div>
 
   <script>
-    const chatbox = document.getElementById("chatbox");
-    const anonBtn = document.getElementById("anonBtn");
+    const btn = document.getElementById("sendBtn");
+    const status = document.getElementById("status");
 
-    function appendMessage(msg) {
-      const div = document.createElement("div");
-      div.className = "msg";
-      div.textContent = msg;
-      chatbox.appendChild(div);
-      chatbox.scrollTop = chatbox.scrollHeight;
-
-      const log = document.getElementById("log");
-      const voce = document.createElement("li");
-      voce.textContent = msg;
-      log.appendChild(voce);
-      if (log.children.length > 50) {
-        log.removeChild(log.children[0]);
-      }
-    }
-
-    function sendAnonymous() {
+    function send() {
       const input = document.getElementById("message");
       let msg = input.value.trim();
-      if (!msg) return;
+      if (!msg) {
+        status.textContent = "Scrivi qualcosa prima di inviare.";
+        status.style.color = "red";
+        return;
+      }
+
       if (!msg.endsWith("?")) msg += "?";
 
-      appendMessage("Anonimo: " + msg);
-      input.value = "";
+      // Salva l'orario attuale in localStorage
+      const now = Date.now();
+      localStorage.setItem("cooldown_timestamp", now.toString());
 
-      anonBtn.disabled = true;
-      anonBtn.textContent = "Attendi 5s...";
-      setTimeout(() => {
-        anonBtn.disabled = false;
-        anonBtn.textContent = "Invia";
-      }, 5000);
+      // Blocca il pulsante
+      applyCooldown();
 
+      // Invia il messaggio al webhook
       fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: msg })
       });
+
+      input.value = "";
+      status.textContent = "Messaggio inviato!";
+      status.style.color = "green";
     }
+
+    function applyCooldown() {
+      btn.disabled = true;
+      const remaining = 300; // secondi
+
+      const interval = setInterval(() => {
+        const stored = localStorage.getItem("cooldown_timestamp");
+        if (!stored) return;
+
+        const elapsed = Math.floor((Date.now() - parseInt(stored)) / 1000);
+        const left = remaining - elapsed;
+
+        if (left > 0) {
+          btn.textContent = `Attendi ${left}s`;
+        } else {
+          clearInterval(interval);
+          btn.disabled = false;
+          btn.textContent = "Invia";
+          status.textContent = "";
+          localStorage.removeItem("cooldown_timestamp");
+        }
+      }, 1000);
+    }
+
+    // Applica cooldown all'avvio se esistente
+    window.onload = () => {
+      const stored = localStorage.getItem("cooldown_timestamp");
+      if (stored) applyCooldown();
+    };
   </script>
 
 </body>
