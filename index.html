@@ -1,40 +1,71 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-  <title>My website</title>
+  <meta charset="UTF-8">
+  <title>Mandami Messaggi Anonimi</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    #btn { padding: 20px; font-size: 18px; position: absolute; }
-    #score { font-size: 24px; margin-top: 20px; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 50px;
+    }
+    textarea {
+      width: 300px;
+      height: 100px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    #status {
+      margin-top: 15px;
+      font-style: italic;
+      color: green;
+    }
   </style>
 </head>
 <body>
-  <div id="chatbox" style="width: 300px; margin: 50px auto; border: 1px solid #ccc; padding: 10px;">
-  <h3>Chatbot</h3>
-  <div id="chat" style="height: 150px; overflow-y: auto; background: #f9f9f9; padding: 5px;"></div>
-  <input id="msgInput" type="text" placeholder="Say something..." style="width: 70%;" />
-  <button onclick="sendMsg()">Send</button>
-</div>
+  <h1>Mandami messaggi privati</h1>
+  <textarea id="message" placeholder="Scrivi il tuo messaggio qui..."></textarea>
+  <button onclick="sendMessage()">Invia</button>
+  <div id="status"></div>
 
-<script>
-  function sendMsg() {
-    const input = document.getElementById("msgInput");
-    const chat = document.getElementById("chat");
-    const userMsg = input.value;
-    if (!userMsg) return;
+  <script>
+    async function sendMessage() {
+      const msg = document.getElementById("message").value;
+      const status = document.getElementById("status");
 
-    // Append user's message
-    chat.innerHTML += `<div><strong>You:</strong> ${userMsg}</div>`;
+      if (!msg.trim()) {
+        status.textContent = "Per favore, scrivi un messaggio prima di inviare.";
+        status.style.color = "red";
+        return;
+      }
 
-    // Simple bot response
-    let reply = "Hmm... interesting!";
-    if (userMsg.includes("hello")) reply = "Hey there! 👋";
-    if (userMsg.includes("score")) reply = "Nice one! Keep clicking!";
+      const payload = {
+        content: msg
+      };
 
-    chat.innerHTML += `<div><strong>Bot:</strong> ${reply}</div>`;
-    chat.scrollTop = chat.scrollHeight;
-    input.value = "";
-  }
-</script>
+      try {
+        await fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+        status.textContent = "Messaggio inviato!";
+        status.style.color = "green";
+        document.getElementById("message").value = "";
+      } catch (error) {
+        status.textContent = "Errore durante l'invio del messaggio.";
+        status.style.color = "red";
+      }
+    }
+  </script>
 </body>
 </html>
