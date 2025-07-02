@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <title>Mandami messaggi anonimi - Gabri</title>
+  <title>Mandami messaggi anonimi</title>
   <style>
     body {
       font-family: sans-serif;
@@ -29,10 +29,12 @@
 </head>
 <body>
 
-  <h1>Mandami messaggi anonimi</h1>
+  <h1>Mandami messaggii anonimi</h1>
   <textarea id="message" placeholder="Scrivi qualcosa..."></textarea><br>
   <button id="sendBtn" onclick="send()">Invia</button>
   <div id="status"></div>
+  <br><br>
+  <button onclick="sbloccaGabri()">Ho il codice</button>
 
   <script>
     const btn = document.getElementById("sendBtn");
@@ -49,14 +51,10 @@
 
       if (!msg.endsWith("?")) msg += "?";
 
-      // Salva l'orario attuale in localStorage
       const now = Date.now();
       localStorage.setItem("cooldown_timestamp", now.toString());
-
-      // Blocca il pulsante
       applyCooldown();
 
-      // Invia il messaggio al webhook
       fetch("https://discord.com/api/webhooks/1389690102221111366/r6HGai3jqYDfyWwIUBxcK_b_Ua5XilzXIqq-XVWZiSgt-rGTB9nPYa0Nrf0duJhTobW5", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -70,14 +68,14 @@
 
     function applyCooldown() {
       btn.disabled = true;
-      const remaining = 300; // secondi
+      const duration = 300; // 5 minuti in secondi
 
       const interval = setInterval(() => {
         const stored = localStorage.getItem("cooldown_timestamp");
         if (!stored) return;
 
         const elapsed = Math.floor((Date.now() - parseInt(stored)) / 1000);
-        const left = remaining - elapsed;
+        const left = duration - elapsed;
 
         if (left > 0) {
           btn.textContent = `Attendi ${left}s`;
@@ -91,7 +89,19 @@
       }, 1000);
     }
 
-    // Applica cooldown all'avvio se esistente
+    function sbloccaGabri() {
+      const codice = prompt("Inserisci il codice:");
+      if (codice === "Gabri") {
+        localStorage.removeItem("cooldown_timestamp");
+        btn.disabled = false;
+        btn.textContent = "Invia";
+        status.textContent = "Cooldown resettato!";
+        status.style.color = "green";
+      } else {
+        alert("Codice errato.");
+      }
+    }
+
     window.onload = () => {
       const stored = localStorage.getItem("cooldown_timestamp");
       if (stored) applyCooldown();
